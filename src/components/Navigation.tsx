@@ -1,9 +1,31 @@
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   const navItems = [
     { label: "Portfolio", href: "#portfolio" },
@@ -18,9 +40,9 @@ const Navigation = () => {
       <div className="container mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="#" className="font-serif text-2xl tracking-wide">
+          <Link to="/" className="font-serif text-2xl tracking-wide">
             Elena Morgan
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-10">
@@ -34,6 +56,26 @@ const Navigation = () => {
                   {item.label}
                 </a>
               )
+            )}
+            
+            {/* Auth Button */}
+            {user ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut size={18} />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <User size={18} />
+                  Sign In
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -73,6 +115,29 @@ const Navigation = () => {
                     {item.label}
                   </a>
                 )
+              )}
+              
+              {/* Mobile Auth */}
+              {user ? (
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setIsOpen(false);
+                  }}
+                  className="font-serif text-2xl text-left flex items-center gap-3"
+                >
+                  <LogOut size={24} />
+                  Sign Out
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="font-serif text-2xl flex items-center gap-3"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <User size={24} />
+                  Sign In
+                </Link>
               )}
             </div>
           </div>
