@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +9,7 @@ const Navigation = () => {
     { label: "Portfolio", href: "#portfolio" },
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
+    { label: "Pricing", href: "/pricing", isPage: true },
     { label: "Contact", href: "#contact" },
   ];
 
@@ -22,11 +24,17 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-10">
-            {navItems.map((item) => (
-              <a key={item.label} href={item.href} className="nav-link">
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) =>
+              item.isPage ? (
+                <Link key={item.label} to={item.href} className="nav-link">
+                  {item.label}
+                </Link>
+              ) : (
+                <a key={item.label} href={item.href} className="nav-link">
+                  {item.label}
+                </a>
+              )
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -45,16 +53,27 @@ const Navigation = () => {
         <div className="md:hidden bg-background border-t border-border">
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-col gap-6">
-              {navItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="font-serif text-2xl"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </a>
-              ))}
+              {navItems.map((item) =>
+                item.isPage ? (
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    className="font-serif text-2xl"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="font-serif text-2xl"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </a>
+                )
+              )}
             </div>
           </div>
         </div>
